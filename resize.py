@@ -1,5 +1,7 @@
 """
 Resize images and add margins
+
+If no files are provided as arguments then all the images in the directory will be processed.
 """
 
 from PIL import Image
@@ -9,7 +11,6 @@ import argparse
 import os
 import logging
 
-# TODO: if no arguments are provided then process all the images in the current directory
 # TODO: offer ability to change default settings through config file
 # TODO: install script that makes it possible to run script through context menu (right click)
 # TODO: implement logging for trouble shooting
@@ -75,7 +76,7 @@ if __name__ == '__main__':
 
     ### ARGUMENT PARSING ###
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('paths', nargs='+',
+    parser.add_argument('paths', nargs='*',
                         help='the files that need to be resized (or directory containing files)')
     args = parser.parse_args()
 
@@ -87,7 +88,13 @@ if __name__ == '__main__':
     logging.debug(f'current work directory is {workdir}')
 
     ### MAIN ###
-    paths = args.paths
+    if args.paths:
+        paths = args.paths
+    else:
+        # no file paths have been provided, so gather all the files in this directory non-recursively
+        with os.scandir() as scan:
+            paths = list(entry.path for entry in scan if entry.is_file())
+
     for path in paths:
         #path = os.path.join(workdir, path)
         if os.path.isfile(path):
