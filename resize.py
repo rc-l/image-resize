@@ -9,10 +9,12 @@ import argparse
 import os
 import logging
 
+# TODO: if no arguments are provided then process all the images in the current directory
 # TODO: offer ability to change default settings through config file
 # TODO: install script that makes it possible to run script through context menu (right click)
 # TODO: implement logging for trouble shooting
 # TODO: package script for running on windows machine without python
+
 
 def resize(image, size, margins=True, roundmargins=False):
     """Resize image with margins
@@ -42,12 +44,25 @@ def resize(image, size, margins=True, roundmargins=False):
     image.thumbnail(size)
     
     if margins:
-        # if both width and heigth smaller then add margin to most the side divergin most from aspect ratio
+        # if both width and heigth smaller then add margin to most the side diverging most from aspect ratio
         if image.size[0] < size[0] and image.size[1] < size[1] and not roundmargins:
             pass
+            # Implement later if such user requirement exists
         else:
-            # The image will be put on the background image to create the margins
-            result = Image.new(image.mode, size, color=tuple(255 for x in image.getbands()))
+            # Create a solid background to put the resized image on, thus creating the margins
+            if image.mode == 'P':
+                # Get the proper background color from the palette, not doing this would result in unexpected
+                # background colors appearing
+                mcolor = image.getpalette().index(MARGIN_COLOR)
+            else:
+                mcolor = MARGIN_COLOR
+
+            result = Image.new(image.mode, size, color=tuple(mcolor for x in image.getbands()))
+            if result.mode == 'P':
+                # Palette mode (P) refers to the use of a color palette for the colors. 
+                # If the palette is not set it will turn the image black and white
+                # which is not the intention of the resizing. Copying the palette from the original fixes the issue.
+                result.putpalette(image.getpalette())
             result.paste(image, ((size[0] - image.size[0]) // 2, (size[1] - image.size[1]) // 2))
             image = result
         
@@ -56,6 +71,7 @@ def resize(image, size, margins=True, roundmargins=False):
 if __name__ == '__main__':
     ### CONFIG ###
     SIZE = (1000, 1000)
+    MARGIN_COLOR = 255  # White
 
     ### ARGUMENT PARSING ###
     parser = argparse.ArgumentParser(description=__doc__)
@@ -64,7 +80,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     ### LOGGING ###
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG, filename="./resize.log")
     
     logging.info(f"path input is {args.paths}")
     workdir = os.path.abspath(os.curdir)
