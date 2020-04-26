@@ -11,10 +11,10 @@ import argparse
 import os
 import logging
 
+# TODO: compression of images
+# TODO: implement proper logging for trouble shooting
 # TODO: offer ability to change default settings through config file
-# TODO: install script that makes it possible to run script through context menu (right click)
-# TODO: implement logging for trouble shooting
-# TODO: package script for running on windows machine without python
+# TODO: installation script that makes it possible to run script through context menu (right click)
 
 
 def resize(image, size, margins=True, roundmargins=False):
@@ -51,19 +51,7 @@ def resize(image, size, margins=True, roundmargins=False):
             # Implement later if such user requirement exists
         else:
             # Create a solid background to put the resized image on, thus creating the margins
-            if image.mode == 'P':
-                # Get the proper background color from the palette, not doing this would result in unexpected
-                # background colors appearing
-                mcolor = image.getpalette().index(MARGIN_COLOR)
-            else:
-                mcolor = MARGIN_COLOR
-
-            result = Image.new(image.mode, size, color=tuple(mcolor for x in image.getbands()))
-            if result.mode == 'P':
-                # Palette mode (P) refers to the use of a color palette for the colors. 
-                # If the palette is not set it will turn the image black and white
-                # which is not the intention of the resizing. Copying the palette from the original fixes the issue.
-                result.putpalette(image.getpalette())
+            result = Image.new('RGB', size, color=MARGIN_COLOR)
             result.paste(image, ((size[0] - image.size[0]) // 2, (size[1] - image.size[1]) // 2))
             image = result
         
@@ -72,7 +60,7 @@ def resize(image, size, margins=True, roundmargins=False):
 if __name__ == '__main__':
     ### CONFIG ###
     SIZE = (1000, 1000)
-    MARGIN_COLOR = 255  # White
+    MARGIN_COLOR = (255, 255, 255)  # White
 
     ### ARGUMENT PARSING ###
     parser = argparse.ArgumentParser(description=__doc__)
@@ -105,8 +93,14 @@ if __name__ == '__main__':
                 continue
             logging.debug(f"resizing: {path} to {SIZE}")
             image = resize(image, SIZE)
-            image.save(path)
-            logging.info(f'resized and saved image {path}')
+            new_path = path[:path.rfind('.')] + ".jpg"
+            image.save(new_path)
+            logging.info(f'resized and saved image {new_path}')
+            if path.lower() != new_path.lower():
+                os.remove(path)
+                logging.info(f'deleted original from {path}')
+            else:
+                logging.debug(f'original is overwritten because old path {path} and new path {new_path} are the same')
         elif os.path.isdir(path):
             # TODO: Handle directories
             pass
