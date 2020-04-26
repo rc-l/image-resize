@@ -10,8 +10,8 @@ import warnings
 import argparse
 import os
 import logging
+import yaml  # PyYaml
 
-# TODO: compression of images
 # TODO: implement proper logging for trouble shooting
 # TODO: offer ability to change default settings through config file
 # TODO: installation script that makes it possible to run script through context menu (right click)
@@ -58,19 +58,22 @@ def resize(image, size, margins=True, roundmargins=False):
     return image
 
 if __name__ == '__main__':
-    ### CONFIG ###
-    SIZE = (1000, 1000)
-    MARGIN_COLOR = (255, 255, 255)  # White
-    QUALITY = 50
-
     ### ARGUMENT PARSING ###
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('paths', nargs='*',
                         help='the files that need to be resized (or directory containing files)')
     args = parser.parse_args()
 
+    ### CONFIG ###
+    appdir = os.path.join(os.environ['APPDATA'], 'image-resize')
+    with open(os.path.join(appdir, 'default-config.yml'), 'r') as f:
+        config = yaml.load(f.read())
+        SIZE = (config["size"]['width'], config["size"]['heigth'])
+        MARGIN_COLOR = (config['margin_color']['r'],config['margin_color']['g'],config['margin_color']['b'])
+        QUALITY = config['quality']
+
     ### LOGGING ###
-    logging.basicConfig(level=logging.DEBUG, filename="./resize.log")
+    logging.basicConfig(level=logging.DEBUG, filename=os.path.join(os.environ['APPDATA'], "resize.log"))
     
     logging.info(f"path input is {args.paths}")
     workdir = os.path.abspath(os.curdir)

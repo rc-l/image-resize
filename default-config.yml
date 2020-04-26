@@ -1,0 +1,11 @@
+margin_color:
+    r: 255
+    g: 255
+    b: 255
+    
+size:
+    width: 1000
+    heigth: 1000
+    
+quality: 50
+loglevel: INFO
