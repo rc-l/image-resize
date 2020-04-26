@@ -61,6 +61,7 @@ if __name__ == '__main__':
     ### CONFIG ###
     SIZE = (1000, 1000)
     MARGIN_COLOR = (255, 255, 255)  # White
+    QUALITY = 50
 
     ### ARGUMENT PARSING ###
     parser = argparse.ArgumentParser(description=__doc__)
@@ -94,7 +95,7 @@ if __name__ == '__main__':
             logging.debug(f"resizing: {path} to {SIZE}")
             image = resize(image, SIZE)
             new_path = path[:path.rfind('.')] + ".jpg"
-            image.save(new_path)
+            image.save(new_path, optimize=True, quality=QUALITY)
             logging.info(f'resized and saved image {new_path}')
             if path.lower() != new_path.lower():
                 os.remove(path)
