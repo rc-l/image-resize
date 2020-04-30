@@ -13,8 +13,9 @@ Optionally you can build the script into an exe using pyinstaller.
 everything to JPG | DONE
 image compression | DONE
 context menu support | DONE
+process entire folder through context menu | DONE
 install script for context menu | TODO 
-process entire folder through context menu | TODO
+
 
 ### Backlog
 - Support multiple presets through context menu (through the use of config files)
