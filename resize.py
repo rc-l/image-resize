@@ -12,11 +12,6 @@ import os
 import logging
 import yaml  # PyYaml
 
-# TODO: implement proper logging for trouble shooting
-# TODO: offer ability to change default settings through config file
-# TODO: installation script that makes it possible to run script through context menu (right click)
-
-
 def resize(image, size, margins=True, roundmargins=False):
     """Resize image with margins
     
