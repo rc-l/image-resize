@@ -1,7 +1,9 @@
 """
 Resize images and add margins
 
-If no files are provided as arguments then all the images in the directory will be processed.
+Provide file paths as argument to resize the specific files.
+Provide directories to resize all the images in the first level of the directory, no recursive behaviour.
+If no files or directories are provided as arguments then all the images in the current directory will be processed.
 """
 
 from PIL import Image
@@ -52,6 +54,15 @@ def resize(image, size, margins=True, roundmargins=False):
         
     return image
 
+def scan_dir(directory):
+    """
+    Gather all files in directory
+    """
+    directory = os.path.abspath(directory)
+    with os.scandir(directory) as scan:
+        paths = list(entry.path for entry in scan if entry.is_file())
+    return paths
+
 if __name__ == '__main__':
     ### ARGUMENT PARSING ###
     parser = argparse.ArgumentParser(description=__doc__)
@@ -68,7 +79,7 @@ if __name__ == '__main__':
         QUALITY = config['quality']
 
     ### LOGGING ###
-    logging.basicConfig(level=logging.DEBUG, filename=os.path.join(os.environ['APPDATA'], "resize.log"))
+    logging.basicConfig(level=logging.DEBUG, filename=os.path.join(appdir, "resize.log"))
     
     logging.info(f"path input is {args.paths}")
     workdir = os.path.abspath(os.curdir)
@@ -76,11 +87,11 @@ if __name__ == '__main__':
 
     ### MAIN ###
     if args.paths:
+        logging.debug("going with cli provided input")
         paths = args.paths
     else:
         # no file paths have been provided, so gather all the files in this directory non-recursively
-        with os.scandir() as scan:
-            paths = list(entry.path for entry in scan if entry.is_file())
+        paths = scan_dir('.')
 
     for path in paths:
         #path = os.path.join(workdir, path)
@@ -101,7 +112,10 @@ if __name__ == '__main__':
             else:
                 logging.debug(f'original is overwritten because old path {path} and new path {new_path} are the same')
         elif os.path.isdir(path):
-            # TODO: Handle directories
-            pass
+            # Find all the files in the directory and add them to the existing list of paths.
+            # The sub directories are skipped to prevent recursive behaviour
+            extrapaths = scan_dir(path)
+            logging.debug(f"found directory {path} with contents {extrapaths}")
+            paths += extrapaths
         else:
             logging.info(f"{path} is neither a file or directory")
