@@ -8,8 +8,13 @@ Optionally you can build the script into an exe using pyinstaller.
 
 ## Development Planning
 ### Release 2
-- context menu support
-- process entire script through context menu
+| feature | status |
+---| ---
+everything to JPG | DONE
+image compression | DONE
+context menu support | DONE
+install script for context menu | TODO 
+process entire folder through context menu | TODO
 
 ### Backlog
 - Support multiple presets through context menu (through the use of config files)
