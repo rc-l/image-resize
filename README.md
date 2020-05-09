@@ -18,6 +18,7 @@ install script for context menu | TODO
 
 
 ### Backlog
+- Make a build script to create the exe and upload it
 - Support multiple presets through context menu (through the use of config files)
 - Basic GUI without presistent settings
 - Support drag and drop for GUI
